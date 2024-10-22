@@ -34,7 +34,7 @@ void printNames( )
 {
   /* TODO : Fill in you and your partner's names (or N/A if you worked individually) */
   printf("\nThis solution was completed by:\n");
-  printf("Robert Farrell\n");
+  printf("Robert Farrell and Braxton McMenamy\n");
   printf(" N/A\n\n");
 }
 
