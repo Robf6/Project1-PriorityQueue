@@ -86,6 +86,7 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
       fclose(inFile);
     }
 
+
     // fscanf(inFile, "%s", buffer);
     // ChemistryD->name = strdup(buffer);
     // printf("%s",ChemistryD->name);
