@@ -79,6 +79,7 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
       departmentList[i].itemsRemoved  = createQueue();
       departmentList[i].totalSpent = 0;
 
+      //TODO add loop to get file information and save to current department
       while(inFile != NULL){
         fscanf(inFile, "%s",buffer);
         printf("test input: %s", buffer);
