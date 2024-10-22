@@ -81,7 +81,7 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
 
       while(inFile != NULL){
         fscanf(inFile, "%s",buffer);
-        
+        printf("test input: %s", buffer);
       }
       fclose(inFile);
     }
