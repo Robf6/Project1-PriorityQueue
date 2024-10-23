@@ -80,8 +80,7 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
       departmentList[i].totalSpent = 0;
 
       //TODO add loop to get file information and save to current department
-      while(inFile != NULL){
-        fscanf(inFile, "%s",buffer);
+      while(fscanf(inFile, "%s",buffer) == 1){
         printf("test input: %s", buffer);
       }
       fclose(inFile);
