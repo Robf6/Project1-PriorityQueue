@@ -49,18 +49,15 @@ void printNames( )
  */
 void ResourceManagement( char* fileNames[], int testDataSize, double budget )
 {
-  DemoOfFunctions( ); //TODO: Feel free to remove this demo once you start coding your solution
+  //DemoOfFunctions( ); //TODO: Feel free to remove this demo once you start coding your solution
   char buffer[100];
-  int i, x;
+  int i;
+  double price;
   Department *departmentList =(Department*)malloc(testDataSize * sizeof(Department)); 
   
 
   /* Create a department for each file listed in fileNames (testDataSize is the size of the fileNames array) */
-    // PriorityQueue *queue = createPQ();
-    // Department *ChemistryD = (Department*)malloc(sizeof(Department));
-    // Department *ComputerScienceD = (Department*)malloc(sizeof(Department)); 
-    // Department *MathmaticsD = (Department*)malloc(sizeof(Department)); 
-    // Department *PhysicsAstronomyD = (Department*)malloc(sizeof(Department)); 
+    
   /* Simulate the algorithm for picking the items to purchase */
 
     for(i = 0; i < testDataSize;i ++){
@@ -80,8 +77,12 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
       departmentList[i].totalSpent = 0;
 
       //TODO add loop to get file information and save to current department
-      while(fscanf(inFile, "%s",buffer) == 1){
-        printf("test input: %s", buffer);
+
+      while (fscanf(inFile, "%s %lf", buffer, &price) == 2) {
+          Item* newItem = (Item*)malloc(sizeof(Item));
+          newItem->name = strdup(buffer);  // Allocate memory and copy item name
+          newItem->price = price;  // Store the price
+          enqueue(departmentList[i].itemsDesired, newItem);  // Add the item to the desired items queue
       }
       fclose(inFile);
     }
