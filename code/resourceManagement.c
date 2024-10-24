@@ -7,6 +7,20 @@ int const STRING_LENGTH = 31;
 void DemoOfFunctions( ); //Added this demo to show off how to use some of the provided functions (see lines with DEMO for more hints)
 double minDouble( double x, double y );
 
+
+void freeQueueContents(Queue* queue) {
+    while (!isEmpty(queue)) {
+        Item* item = dequeue(queue);  // Get the item from the queue
+
+        // Free the item's name (dynamically allocated by strdup)
+        free(item->name);
+
+        // Free the item itself
+        free(item);
+    }
+
+
+}
 /*freeDeparments
 *  input: Deparment **inputDL, int testDataSize
 *  output: none
@@ -21,11 +35,13 @@ void freeDeparments(PriorityQueue *PQinput, int testDataSize){
         free(tempD->name);
 
         // Free the items in the queues
-        while(!isEmpty(tempD->itemsDesired)){
-          free(dequeue(tempD->itemsDesired));
-        }
+        freeQueueContents(tempD->itemsDesired);
         freeQueue(tempD->itemsDesired);  // Free itemsDesired queue
+
+        freeQueueContents(tempD->itemsReceived);
         freeQueue(tempD->itemsReceived);  // Free itemsReceived queue
+
+        freeQueueContents(tempD->itemsRemoved);
         freeQueue(tempD->itemsRemoved);  // Free itemsRemoved queue
 
         // Free the department struct itself
@@ -96,6 +112,7 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
           enqueue(newDepartment->itemsDesired, newItem);  // Add the item to the desired items queue
       }
       enqueueByPriority(Pqueu,newDepartment, 0.0 );
+      fclose(inFile);
     }
 
     printPriorityQueue(Pqueu);
