@@ -13,16 +13,26 @@ double minDouble( double x, double y );
 *
 *  takes list of deparments and frees the data in the struct
 */
-void freeDeparments(Department inputDL[], int testDataSize){
-    int i;
-    for(i = 0; i < testDataSize; i++){
-      free(inputDL[i].name);
-      freeQueue(inputDL[i].itemsDesired);
-      freeQueue(inputDL[i].itemsReceived);
-      freeQueue(inputDL[i].itemsRemoved);
-    }
-}
+void freeDeparments(PriorityQueue *PQinput, int testDataSize){
+    while (!isEmptyPQ(PQinput)) {  // Free all departments in the priority queue
+        Department *tempD = dequeuePQ(PQinput);  // Remove the department from the priority queue
 
+        // Free the department name
+        free(tempD->name);
+
+        // Free the items in the queues
+        while(!isEmpty(tempD->itemsDesired)){
+          free(dequeue(tempD->itemsDesired));
+        }
+        freeQueue(tempD->itemsDesired);  // Free itemsDesired queue
+        freeQueue(tempD->itemsReceived);  // Free itemsReceived queue
+        freeQueue(tempD->itemsRemoved);  // Free itemsRemoved queue
+
+        // Free the department struct itself
+        free(tempD);
+    }
+
+}
 /* printNames
  * input: none
  * output: none
@@ -53,8 +63,8 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
   char buffer[100];
   int i;
   double price;
-  Department *departmentList =(Department*)malloc(testDataSize * sizeof(Department)); 
-  
+  //Department *departmentList =(Department*)malloc(testDataSize * sizeof(Department)); 
+  PriorityQueue* Pqueu = createPQ();
 
   /* Create a department for each file listed in fileNames (testDataSize is the size of the fileNames array) */
     
@@ -67,14 +77,15 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
         exit(-1);
       }
 
+      Department *newDepartment = (Department*)malloc(sizeof(Department));
 
       fscanf(inFile, "%s", buffer);
-      departmentList[i].name = strdup(buffer);
-      printf("Name test: %s\n", departmentList[i].name);
-      departmentList[i].itemsDesired = createQueue();
-      departmentList[i].itemsReceived = createQueue();
-      departmentList[i].itemsRemoved  = createQueue();
-      departmentList[i].totalSpent = 0;
+      newDepartment->name = strdup(buffer);
+      printf("Name test: %s\n", newDepartment->name);
+      newDepartment->itemsDesired = createQueue();
+      newDepartment->itemsReceived = createQueue();
+      newDepartment->itemsRemoved  = createQueue();
+      newDepartment->totalSpent = 0.00;
 
       //TODO add loop to get file information and save to current department
 
@@ -82,21 +93,20 @@ void ResourceManagement( char* fileNames[], int testDataSize, double budget )
           Item* newItem = (Item*)malloc(sizeof(Item));
           newItem->name = strdup(buffer);  // Allocate memory and copy item name
           newItem->price = price;  // Store the price
-          enqueue(departmentList[i].itemsDesired, newItem);  // Add the item to the desired items queue
+          enqueue(newDepartment->itemsDesired, newItem);  // Add the item to the desired items queue
       }
-      fclose(inFile);
+      enqueueByPriority(Pqueu,newDepartment, 0.0 );
     }
 
-
-    // fscanf(inFile, "%s", buffer);
-    // ChemistryD->name = strdup(buffer);
-    // printf("%s",ChemistryD->name);
-    // free(ChemistryD->name);
-    // free(ChemistryD);
-    freeDeparments(departmentList, testDataSize);
-    free(departmentList);
+    printPriorityQueue(Pqueu);
 
 	/* Print the information for each department (including which items were received and which were not) */
+
+
+
+    freeDeparments(Pqueu, testDataSize);
+    freePQ(Pqueu);
+
 
 } 
 
