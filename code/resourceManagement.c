@@ -75,7 +75,7 @@ void printNames()
  */
 void ResourceManagement(char *fileNames[], int testDataSize, double budget)
 {
-  // DemoOfFunctions( ); //TODO: Feel free to remove this demo once you start coding your solution
+  
   char buffer[100];
   int i;
   double price;
@@ -132,6 +132,7 @@ void ResourceManagement(char *fileNames[], int testDataSize, double budget)
         budget -= item->price;
         dept->totalSpent += item->price;
         enqueue(dept->itemsReceived, dequeue(dept->itemsDesired));
+        break;
       }
       else
       {
@@ -164,93 +165,53 @@ void ResourceManagement(char *fileNames[], int testDataSize, double budget)
       scholarshipItem->price = scholarship;
       enqueue(dept->itemsReceived, scholarshipItem);
     }
+    enqueueByPriority(Pqueu, dept, dept->totalSpent);
   }
+    printPriorityQueue(Pqueu); // print test
 
-  printPriorityQueue(Pqueu); //print test
+printf("ITEMS PURCHASED\n");s
+printf("----------------------------\n");
 
+while (!isEmptyPQ(Pqueu)) {
+    Department* DP = dequeuePQ(Pqueu);
+    Item* itemInput = dequeue(DP->itemsRecived);
+    
+    // Prepare price string for alignment
+    char outputString[21];
+    sprintf(outputString, "$%10.2lf", itemInput->price); // Allocate enough width for alignment
+    
+    printf("Department of %-35s - %-30s - %20s\n", DP->name, itemInput->name, outputString);
 
-  freeDeparments(Pqueu, testDataSize);
-  freePQ(Pqueu);
+    // Re-enqueue item and department to maintain their place in queues
+    enqueue(DP->itemsDesired, itemInput);
+    enqueueByPriority(Pqueu, DP, DP->totalSpent);
 }
 
 
-  // while(!isEmptyPQ(Pqueu)){
-  //   Department* testDP = dequeuePQ(Pqueu);
-  //   Item* testItem = dequeue(testDP->itemsDesired);
-  //   char* outputString = (char*)malloc(sizeof(char)*31);
-
-  //   printf("ITEMS PURCHASED\n----------------------------\n");
-  //   sprintf(outputString,"$%.2lf",testItem->price);
-  //   printf("Department of %-30s - %-30s - %20s\n\n\n", testDP->name, testItem->name, outputString);
-  // }
-
+    freeDeparments(Pqueu, testDataSize);
+    freePQ(Pqueu);
+  }
 
   // printf("Department of %s\n",testDP->name);
   // printf("Total Spent =        %s\n",outputString); //update number
   // printf("----------------------------\n");
   // printf("ITEMS RECEIVED");
-  // printf("%-30s - %20s\n",testItem->name,outputString);
+  // printf("%-30s - %20s\n",itemInput->name,outputString);
 
-  // enqueue(testDP->itemsDesired,testItem);
+  // enqueue(testDP->itemsDesired,itemInput);
   // enqueueByPriority(Pqueu,testDP,0);
-  // free(outputString);
+
   /* Print the information for each department (including which items were received and which were not) */
   // TODO
-/* minDouble
- * input: double x, double y
- * output: the smaller of x and y
- */
-double minDouble(double x, double y)
-{
-  if (x <= y)
-    return x;
-  return y;
-}
+  /* minDouble
+   * input: double x, double y
+   * output: the smaller of x and y
+   */
+  double minDouble(double x, double y)
+  {
+    if (x <= y)
+      return x;
+    return y;
+  }
 
-/* DEMO
- * DemoOfFunctions
- * input: none
- * output: none
- *
- * Short demo of some of the provided functions.
- */
-void DemoOfFunctions()
-{
-  PriorityQueue *demoPQ = createPQ();
-  Department *deptDemo = (Department *)malloc(sizeof(Department));
-
-  deptDemo->name = strdup("DeptNameHere"); // DEMO: strdup creates a new string with given information copied into it
-  deptDemo->totalSpent = 13.37;            // DEMO: all the numbers in the demo are just arbitrary values to help you spot them in the print out
-  deptDemo->itemsDesired = createQueue();
-  deptDemo->itemsReceived = createQueue();
-  deptDemo->itemsRemoved = NULL; // DEMO: make sure you also create your other queues (only setting up 2 here to demo how that changes the print)
-
-  Item *itemDemo = (Item *)malloc(sizeof(Item));
-  itemDemo->name = strdup("ItemNameHere");
-  itemDemo->price = 3141.59;
-
-  enqueue(deptDemo->itemsDesired, itemDemo);
-  enqueueByPriority(demoPQ, deptDemo, 123.45);
-
-  printPriorityQueue(demoPQ); // DEMO: Useful function to see the contents of the PQ while testing (not used to create your tables)
-
-  /*Department* temp =*/getNextPQ(demoPQ); // DEMO: returns but doesn't remove the element from the PQ
-
-  printPriorityQueue(demoPQ); // DEMO: Notice that the Demo Department is still in there
-
-  Department *deptFreeDemo = dequeuePQ(demoPQ); // DEMO: returns and removes the element from the PQ
-
-  printPriorityQueue(demoPQ); // DEMO: Notice that the Demo Department is no longer in there
-
-  Item *itemFreeDemo = dequeue(deptFreeDemo->itemsDesired);
-
-  freePQ(demoPQ); // DEMO: Be sure to remove all of the elements from the PQ before freeing it
-
-  free(itemFreeDemo->name);
-  free(itemFreeDemo);
-
-  free(deptFreeDemo->name);
-  freeQueue(deptFreeDemo->itemsDesired); // DEMO: Be sure to remove all of the elements from the Queue before freeing it
-  freeQueue(deptFreeDemo->itemsReceived);
-  free(deptFreeDemo);
-}
+  
