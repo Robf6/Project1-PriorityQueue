@@ -26,28 +26,25 @@ void freeQueueContents(Queue *queue)
  *
  *  takes list of deparments and frees the data in the struct
  */
-void freeDeparments(PriorityQueue *PQinput, int testDataSize)
-{
-  while (!isEmptyPQ(PQinput))
-  {                                         // Free all departments in the priority queue
-    Department *tempD = dequeuePQ(PQinput); // Remove the department from the priority queue
+void freeDeparment(Department *DPinput)
+{                                       // Free all departments in the priority queue
+ // Remove the department from the priority queue
 
     // Free the department name
-    free(tempD->name);
+    free(DPinput->name);
 
     // Free the items in the queues
-    freeQueueContents(tempD->itemsDesired);
-    freeQueue(tempD->itemsDesired); // Free itemsDesired queue
+    freeQueueContents(DPinput->itemsDesired);
+    freeQueue(DPinput->itemsDesired); // Free itemsDesired queue
 
-    freeQueueContents(tempD->itemsReceived);
-    freeQueue(tempD->itemsReceived); // Free itemsReceived queue
+    freeQueueContents(DPinput->itemsReceived);
+    freeQueue(DPinput->itemsReceived); // Free itemsReceived queue
 
-    freeQueueContents(tempD->itemsRemoved);
-    freeQueue(tempD->itemsRemoved); // Free itemsRemoved queue
+    freeQueueContents(DPinput->itemsRemoved);
+    freeQueue(DPinput->itemsRemoved); // Free itemsRemoved queue
 
     // Free the department struct itself
-    free(tempD);
-  }
+    free(DPinput);
 }
 /* printNames
  * input: none
@@ -60,8 +57,8 @@ void printNames()
 {
   /* TODO : Fill in you and your partner's names (or N/A if you worked individually) */
   printf("\nThis solution was completed by:\n");
-  printf("Robert Farrell and Braxton McMenamy\n");
-  printf(" N/A\n\n");
+  printf("Robert Farrell   Section: 005\n");
+  printf("Braxton McMenamy Section: 006\n\n");
 }
 
 /* TODO:
@@ -80,12 +77,10 @@ void ResourceManagement(char *fileNames[], int testDataSize, double budget)
   int i;
   double price;
   char outputString[21];
-  // Department *departmentList =(Department*)malloc(testDataSize * sizeof(Department));
+  double totalBudget = budget;
+
   PriorityQueue *Pqueu = createPQ();
 
-  /* Create a department for each file listed in fileNames (testDataSize is the size of the fileNames array) */
-
-  /* Simulate the algorithm for picking the items to purchase */
 
   for (i = 0; i < testDataSize; i++)
   {
@@ -100,14 +95,12 @@ void ResourceManagement(char *fileNames[], int testDataSize, double budget)
 
     fscanf(inFile, "%s", buffer);
     newDepartment->name = strdup(buffer);
-    // printf("Name test: %s\n", newDepartment->name);
     newDepartment->itemsDesired = createQueue();
     newDepartment->itemsReceived = createQueue();
     newDepartment->itemsRemoved = createQueue();
     newDepartment->totalSpent = 0.00;
 
-    // TODO add loop to get file information and save to current department
-
+    
     while (fscanf(inFile, "%s %lf", buffer, &price) == 2)
     {
       Item *newItem = (Item *)malloc(sizeof(Item));
@@ -136,7 +129,6 @@ while(budget > 0) {
             break;
         }
         enqueue(dept->itemsRemoved,inputItem);
-        //printQueue(dept->itemsDesired);
 
     }
 
@@ -145,50 +137,71 @@ while(budget > 0) {
         double scholarship = minDouble(1000.0, budget);
         budget -= scholarship;
         dept->totalSpent += scholarship;
-            sprintf(outputString, "$%-10.2lf", scholarship);
-            printf("Department of %-30s - Scholarship                    - %20s\n", dept->name, outputString);
+        sprintf(outputString, "$%-10.2lf", scholarship);
+        printf("Department of %-30s - Scholarship                    - %20s\n", dept->name, outputString);
+
+        Item *newItem = (Item *)malloc(sizeof(Item));
+        newItem->name = strdup("Scholarship");                // Allocate memory and copy item name
+        newItem->price = scholarship;
+        enqueue(dept->itemsReceived,newItem);                 //add sholarship to item recived
     }
-    //printf("put away dep\n");
+
+
     // Update department's priority and re-enqueue
     enqueueByPriority(Pqueu, dept, dept->totalSpent);
 }
 
-
-    printPriorityQueue(Pqueu); // print test
-
+    printf("\n\n");
 
 
-// while (sizeOfPriorityQueue(Pqueu) > 2) {
-//     Department* DP = dequeuePQ(Pqueu);
-//     Item* itemInput = dequeue(DP->itemsReceived);
+
+while (!isEmptyPQ(Pqueu)) {
+    Department* DP = dequeuePQ(Pqueu);
+
+    printf("Department of %s\n",DP->name);
+    sprintf(outputString, "$%-10.2lf", DP->totalSpent);
+    printf("Total Spent       = %s\n",outputString);
+    printf("Percent of Budget = %.2lf%%\n",(DP->totalSpent/totalBudget)*100.0);
+    printf("----------------------------\n");
+
+    printf("ITEMS RECEIVED\n");
+    while(!isEmpty(DP->itemsReceived)){
+      Item* itemInput = dequeue(DP->itemsReceived);
+      sprintf(outputString, "$%-10.2lf", itemInput->price);
+      printf("%-30s - %-20s\n",itemInput->name,outputString);
+
+      // Free the item's name (dynamically allocated by strdup)
+      free(itemInput->name);
+
+      // Free the item itself
+      free(itemInput);
+    }
+    printf("\n\n");
+
+    printf("ITEMS NOT RECEIVED\n");
+    while(!isEmpty(DP->itemsRemoved)){
+      Item* itemInput = dequeue(DP->itemsRemoved);
+      sprintf(outputString, "$%-10.2lf", itemInput->price);
+      printf("%-30s - %-20s\n",itemInput->name,outputString);
+      // Free the item's name (dynamically allocated by strdup)
+      free(itemInput->name);
+
+      // Free the item itself
+      free(itemInput);
+    }
+    printf("\n\n");
     
-//     // Prepare price string for alignment
-//     char outputString[21];
-//     sprintf(outputString, "$%-10.2lf", itemInput->price); // Allocate enough width for alignment
-    
-//     printf("Department of %-35s - %-30s - %20s\n", DP->name, itemInput->name, outputString);
 
-//     // Re-enqueue item and department to maintain their place in queues
-//     enqueue(DP->itemsDesired, itemInput);
-//     enqueueByPriority(Pqueu, DP, DP->totalSpent);
-// }
+    freeDeparment(DP);
+}
 
 
-    freeDeparments(Pqueu, testDataSize);
+
     freePQ(Pqueu);
   }
 
-  // printf("Department of %s\n",testDP->name);
-  // printf("Total Spent =        %s\n",outputString); //update number
-  // printf("----------------------------\n");
-  // printf("ITEMS RECEIVED");
-  // printf("%-30s - %20s\n",itemInput->name,outputString);
 
-  // enqueue(testDP->itemsDesired,itemInput);
-  // enqueueByPriority(Pqueu,testDP,0);
 
-  /* Print the information for each department (including which items were received and which were not) */
-  // TODO
   /* minDouble
    * input: double x, double y
    * output: the smaller of x and y
@@ -200,4 +213,3 @@ while(budget > 0) {
     return y;
   }
 
-  
