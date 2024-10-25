@@ -79,6 +79,7 @@ void ResourceManagement(char *fileNames[], int testDataSize, double budget)
   char buffer[100];
   int i;
   double price;
+  char outputString[21];
   // Department *departmentList =(Department*)malloc(testDataSize * sizeof(Department));
   PriorityQueue *Pqueu = createPQ();
 
@@ -118,74 +119,59 @@ void ResourceManagement(char *fileNames[], int testDataSize, double budget)
     fclose(inFile);
   }
 
-  while (!isEmptyPQ(Pqueu) && budget > 0)
-  {
-    Department *dept = dequeuePQ(Pqueu);
-
-    // Process items in dept->itemsDesired
-    while (!isEmpty(dept->itemsDesired) && budget > 0)
-    {
-      Item *item = getNext(dept->itemsDesired);
-      if (item->price <= budget)
-      {
-        // Purchase item and update budget/totalSpent
-        budget -= item->price;
-        dept->totalSpent += item->price;
-        enqueue(dept->itemsReceived, dequeue(dept->itemsDesired));
-        break;
-      }
-      else
-      {
-        // Cannot afford item; move to itemsRemoved
-        enqueue(dept->itemsRemoved, dequeue(dept->itemsDesired));
-      }
-    }
-
-    // Scholarship processing if itemsDesired is empty
-    if (isEmpty(dept->itemsDesired) && budget > 0)
-    {
-      double scholarship = (budget > 1000) ? 1000 : budget;
-      budget -= scholarship;
-      dept->totalSpent += scholarship;
-
-      // Create and enqueue scholarship item
-      Item *scholarshipItem = (Item *)malloc(sizeof(Item));
-      if (scholarshipItem == NULL)
-      {
-        fprintf(stderr, "Memory allocation failed for scholarshipItem\n");
-        exit(1);
-      }
-      scholarshipItem->name = strdup("Scholarship");
-      if (scholarshipItem->name == NULL)
-      {
-        fprintf(stderr, "Memory allocation failed for scholarshipItem name\n");
-        free(scholarshipItem);
-        exit(1);
-      }
-      scholarshipItem->price = scholarship;
-      enqueue(dept->itemsReceived, scholarshipItem);
-    }
-    enqueueByPriority(Pqueu, dept, dept->totalSpent);
-  }
-    printPriorityQueue(Pqueu); // print test
-
-printf("ITEMS PURCHASED\n");s
+printf("ITEMS PURCHASED\n");
 printf("----------------------------\n");
 
-while (!isEmptyPQ(Pqueu)) {
-    Department* DP = dequeuePQ(Pqueu);
-    Item* itemInput = dequeue(DP->itemsRecived);
-    
-    // Prepare price string for alignment
-    char outputString[21];
-    sprintf(outputString, "$%10.2lf", itemInput->price); // Allocate enough width for alignment
-    
-    printf("Department of %-35s - %-30s - %20s\n", DP->name, itemInput->name, outputString);
+while(budget > 0) {
+    Department* dept = dequeuePQ(Pqueu);
 
-    // Re-enqueue item and department to maintain their place in queues
-    enqueue(DP->itemsDesired, itemInput);
-    enqueueByPriority(Pqueu, DP, DP->totalSpent);
+    while(!isEmpty(dept->itemsDesired)) {
+        Item* inputItem = dequeue(dept->itemsDesired);
+        if(inputItem->price <= budget){
+            budget -= inputItem->price;
+            dept->totalSpent += inputItem->price;
+            sprintf(outputString, "$%-10.2lf", inputItem->price);
+            printf("Department of %-30s - %-30s - %20s\n", dept->name, inputItem->name, outputString);
+            enqueue(dept->itemsReceived, inputItem);
+            break;
+        }
+        enqueue(dept->itemsRemoved,inputItem);
+        //printQueue(dept->itemsDesired);
+
+    }
+
+    // If no items were purchased, give a scholarship
+    if (isEmpty(dept->itemsDesired)) {
+        double scholarship = minDouble(1000.0, budget);
+        budget -= scholarship;
+        dept->totalSpent += scholarship;
+            sprintf(outputString, "$%-10.2lf", scholarship);
+            printf("Department of %-30s - Scholarship                    - %20s\n", dept->name, outputString);
+    }
+    //printf("put away dep\n");
+    // Update department's priority and re-enqueue
+    enqueueByPriority(Pqueu, dept, dept->totalSpent);
 }
+
+
+    printPriorityQueue(Pqueu); // print test
+
+
+
+// while (sizeOfPriorityQueue(Pqueu) > 2) {
+//     Department* DP = dequeuePQ(Pqueu);
+//     Item* itemInput = dequeue(DP->itemsReceived);
+    
+//     // Prepare price string for alignment
+//     char outputString[21];
+//     sprintf(outputString, "$%-10.2lf", itemInput->price); // Allocate enough width for alignment
+    
+//     printf("Department of %-35s - %-30s - %20s\n", DP->name, itemInput->name, outputString);
+
+//     // Re-enqueue item and department to maintain their place in queues
+//     enqueue(DP->itemsDesired, itemInput);
+//     enqueueByPriority(Pqueu, DP, DP->totalSpent);
+// }
 
 
     freeDeparments(Pqueu, testDataSize);
